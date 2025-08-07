@@ -3,7 +3,7 @@ import json
 import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QTextEdit, QLabel, QSystemTrayIcon, QMenu, QAction,
-    QPushButton, QHBoxLayout, QInputDialog, QSpinBox, QScrollArea, QFrame, QGridLayout, QMessageBox, QDialog, QCheckBox, QDialogButtonBox, QColorDialog, QToolButton, QSlider, QSizeGrip, QLayout, QLineEdit, QShortcut, QTextBrowser
+    QPushButton, QHBoxLayout, QInputDialog, QSpinBox, QScrollArea, QFrame, QGridLayout, QMessageBox, QDialog, QCheckBox, QDialogButtonBox, QColorDialog, QToolButton, QSlider, QSizeGrip, QLayout, QLineEdit, QShortcut, QTextBrowser, QStyle
 )
 from PyQt5.QtCore import Qt, QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont, QColor, QPixmap, QPainter, QIntValidator, QLinearGradient, QKeySequence
@@ -385,6 +385,7 @@ This project is open source and available under the MIT License.
 class NoteWidget(QMainWindow):
     def __init__(self, title, parent=None, on_delete=None, color_index=0, theme='light', on_color_change=None, main_window=None):
         super().__init__(parent)
+        self.is_pinned = False
         self.title = title
         self._on_delete = None
         self.is_visible = True
@@ -471,6 +472,17 @@ class NoteWidget(QMainWindow):
         self.settings_button.setToolTip('Settings')
         self.settings_button.clicked.connect(self.show_settings_menu)
         right_section.addWidget(self.settings_button)
+        
+        # Pin toggle button
+        self.pin_button = QToolButton(self)
+        self.pin_button.setCheckable(True)
+        self.pin_button.setChecked(self.is_pinned)
+        self.pin_button.setIcon(self.get_pin_icon())
+        self.pin_button.setToolTip("Pin note (always on top)")
+        self.pin_button.setAutoRaise(True)
+        self.pin_button.setFixedSize(20, 20)
+        self.pin_button.clicked.connect(self.toggle_pin)
+        right_section.addWidget(self.pin_button)
         
         # Hide button
         self.hide_button = QToolButton()
@@ -753,6 +765,22 @@ class NoteWidget(QMainWindow):
     def show_readme(self):
         if self.main_window:
             self.main_window.show_readme()
+            
+    def get_pin_icon(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        if self.is_pinned:
+            return QIcon(os.path.join(base_dir, "pin-fill.svg"))
+        else:
+            return QIcon(os.path.join(base_dir, "pin.svg"))
+
+    def toggle_pin(self):
+        self.is_pinned = self.pin_button.isChecked()
+        self.pin_button.setIcon(self.get_pin_icon())
+        if self.is_pinned:
+            self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
+        else:
+            self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
+        self.show()  # Re-show to apply new flags
 
 class NewNoteDialog(QDialog):
     def __init__(self, theme, parent=None):
