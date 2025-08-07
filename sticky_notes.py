@@ -35,7 +35,7 @@ DARK_PASTELS = [
     (64, 61, 86),     # muted purple
     (60, 76, 74),     # muted teal
     (80, 61, 61),     # muted maroon
-    (70, 70, 60),     # muted olive
+    (105, 105, 12),   # dark yellow
     (60, 70, 80),     # muted slate
 ]
 
@@ -394,7 +394,7 @@ class NoteWidget(QMainWindow):
         self.main_window = main_window
         self.original_size = None
         self.default_size = QSize(400, 400)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool) # Restore legacy behaviour with `Qt.WindowStaysOnTopHint`
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setup_ui()
         self.apply_color()
